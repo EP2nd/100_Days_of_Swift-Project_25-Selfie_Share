@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pAN-ZO-ZE7">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -30,11 +31,20 @@
                                     <rect key="frame" x="0.0" y="0.0" width="145" height="145"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="1000" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1Wd-rY-vkT">
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="1000" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1Wd-rY-vkT">
                                             <rect key="frame" x="0.0" y="0.0" width="145" height="145"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="145" id="BHK-tr-thg"/>
+                                                <constraint firstAttribute="width" secondItem="1Wd-rY-vkT" secondAttribute="height" multiplier="1:1" id="K4Y-vu-tng"/>
+                                            </constraints>
                                         </imageView>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="1Wd-rY-vkT" firstAttribute="leading" secondItem="qlY-H6-87c" secondAttribute="leading" id="E3I-lZ-R20"/>
+                                        <constraint firstItem="1Wd-rY-vkT" firstAttribute="centerX" secondItem="qlY-H6-87c" secondAttribute="centerX" id="JsB-io-XwY"/>
+                                        <constraint firstItem="1Wd-rY-vkT" firstAttribute="top" secondItem="qlY-H6-87c" secondAttribute="top" id="UR0-We-Ns4"/>
+                                        <constraint firstItem="1Wd-rY-vkT" firstAttribute="centerY" secondItem="qlY-H6-87c" secondAttribute="centerY" id="fNu-zR-TeJ"/>
+                                    </constraints>
                                 </collectionViewCellContentView>
                             </collectionViewCell>
                         </cells>
