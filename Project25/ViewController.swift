@@ -10,16 +10,23 @@ import MultipeerConnectivity
 class ViewController: UICollectionViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, MCSessionDelegate, MCBrowserViewControllerDelegate {
     
     var images = [UIImage]()
+    
     var peerID = MCPeerID(displayName: UIDevice.current.name)
     var mcSession: MCSession?
     var mcAdvertiserAssistant: MCAdvertiserAssistant?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Selfie Share"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importImage))
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
+        
+        // Challenge 2:
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
+        let broadcastButton = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(broadcastPrompt))
+        toolbarItems = [spacer, broadcastButton]
+        navigationController?.isToolbarHidden = false
         
         mcSession = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
         mcSession?.delegate = self
@@ -38,7 +45,7 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
         return cell
     }
     
-    @objc func importPicture() {
+    @objc func importImage() {
         let picker = UIImagePickerController()
         picker.allowsEditing = true
         picker.delegate = self
@@ -53,6 +60,18 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
         present(ac, animated: true)
     }
     
+    // Challenge 2:
+    @objc func broadcastPrompt() {
+        let ac = UIAlertController(title: "Broadcast", message: "Let others know what is on your mind.", preferredStyle: .alert)
+        ac.addTextField()
+        ac.addAction(UIAlertAction(title: "Send", style: .default) { [weak self, weak ac] _ in
+            guard let text = ac?.textFields?[0].text else { return }
+            self?.broadcastMessage(text)
+        })
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(ac, animated: true)
+    }
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let image = info[.editedImage] as? UIImage else { return }
         
@@ -61,21 +80,38 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
         images.insert(image, at: 0)
         collectionView.reloadData()
         
+        // Challenge 2:
+        sendImage(image)
+    }
+    
+    // Challenge 2:
+    func sendImage(_ image: UIImage) {
+        // 4
+        if let imageData = image.pngData() {
+            sendData(imageData)
+        }
+    }
+    
+    // Challenge 2:
+    func broadcastMessage(_ message: String) {
+        let message = Data(message.utf8)
+        sendData(message)
+    }
+    
+    // Challenge 2:
+    func sendData(_ data: Data) {
         // 1
         guard let mcSession = mcSession else { return }
         // 2
         if mcSession.connectedPeers.count > 0 {
             // 3
-            if let imageData = image.pngData() {
-                // 4
-                do {
-                    try mcSession.send(imageData, toPeers: mcSession.connectedPeers, with: .reliable)
-                } catch {
-                    // 5
-                    let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
-                    ac.addAction(UIAlertAction(title: "OK", style: .default))
-                    present(ac, animated: true)
-                }
+            do {
+                try mcSession.send(data, toPeers: mcSession.connectedPeers, with: .reliable)
+            } catch {
+                // 5
+                let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default))
+                present(ac, animated: true)
             }
         }
     }
@@ -124,6 +160,7 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
         case .notConnected:
             print("Not Connected: \(peerID.displayName)")
             
+            // Challenge 1:
             DispatchQueue.main.async {
                 let ac = UIAlertController(title: "Warning", message: "\(peerID.displayName) has disconnected.", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "OK", style: .default))
@@ -140,8 +177,14 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
             if let image = UIImage(data: data) {
                 self?.images.insert(image, at: 0)
                 self?.collectionView.reloadData()
-            }
             
+            // Challenge 2:
+            } else {
+                let text = String(decoding: data, as: UTF8.self)
+                let ac = UIAlertController(title: "Message from \(peerID.displayName)", message: text, preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default))
+                self?.present(ac, animated: true)
+            }
         }
     }
 }
