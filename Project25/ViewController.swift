@@ -22,10 +22,12 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importImage))
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
         
+        // Challenge 3:
+        let listOfConnectionsButton = UIBarButtonItem(title: "Connections", style: .plain, target: self, action: #selector(displayConnections))
         // Challenge 2:
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
-        let broadcastButton = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(broadcastPrompt))
-        toolbarItems = [spacer, broadcastButton]
+        let broadcastMessageButton = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(broadcastPrompt))
+        toolbarItems = [listOfConnectionsButton, spacer, broadcastMessageButton]
         navigationController?.isToolbarHidden = false
         
         mcSession = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
@@ -57,6 +59,26 @@ class ViewController: UICollectionViewController, UINavigationControllerDelegate
         ac.addAction(UIAlertAction(title: "Host a session", style: .default, handler: startHosting))
         ac.addAction(UIAlertAction(title: "Join a session", style: .default, handler: joinSession))
         ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(ac, animated: true)
+    }
+    
+    // Challenge 3:
+    @objc func displayConnections() {
+        guard let mcSession = mcSession else { return }
+        
+        let connectedUsers = mcSession.connectedPeers
+        var list = ""
+        
+        if !connectedUsers.isEmpty {
+            connectedUsers.forEach {
+                list += "\n\($0.displayName)"
+            }
+        } else {
+            list += "Everybody is currently offline."
+        }
+        
+        let ac = UIAlertController(title: "Connected users", message: "\(list)", preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default))
         present(ac, animated: true)
     }
     
